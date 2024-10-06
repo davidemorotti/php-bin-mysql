@@ -10,9 +10,6 @@ on:
     - cron:  '0 0 * * 0'
   workflow_dispatch:
 
-env:
-  GITHUB_TOKEN: ${{ secrets.PAT }}
-
 jobs:
   build:
     name: ${{ matrix.version }} ${{ matrix.os }}
@@ -35,6 +32,7 @@ jobs:
           git clone https://github.com/crazywhalecc/static-php-cli.git
           cd static-php-cli
           git checkout main
+          mkdir -p php-bin
           cd ../php-bin
 
       - shell: bash
