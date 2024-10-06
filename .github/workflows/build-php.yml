@@ -96,10 +96,18 @@ jobs:
         id: read-extensions
         shell: bash
         run: |
-          EXTENSIONS=$(php -r "echo trim(file_get_contents('$GITHUB_WORKSPACE/php-extensions.txt'));")
-          EXT_HASH=$(php -r "echo md5(getenv('EXTENSIONS'));")
-          echo "PHP_EXTENSIONS=$EXTENSIONS" >> $GITHUB_ENV
-          echo "PHP_EXT_HASH=$EXT_HASH" >> $GITHUB_ENV
+            CURRENT_DIR=$(pwd)
+            echo "Current directory: $CURRENT_DIR"
+            ls -la  # This will list all files in the current directory
+            if [ -f "php-extensions.txt" ]; then
+              EXTENSIONS=$(php -r "echo trim(file_get_contents('php-extensions.txt'));")
+              EXT_HASH=$(php -r "echo md5('$EXTENSIONS');")
+              echo "PHP_EXTENSIONS=$EXTENSIONS" >> $GITHUB_ENV
+              echo "PHP_EXT_HASH=$EXT_HASH" >> $GITHUB_ENV
+            else
+              echo "Error: php-extensions.txt not found in the current directory"
+              exit 1
+            fi
 
       # Cache downloaded source
       - id: cache-spc-downloads
