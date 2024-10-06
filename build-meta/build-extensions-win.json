@@ -22,6 +22,7 @@
     "tokenizer",
     "bz2",
     "zip",
+    "mysqlnd",
     "mysqli",
     "pdo_mysql"
 ]
