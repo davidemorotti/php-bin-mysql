@@ -20,6 +20,7 @@
     "tokenizer",
     "xml",
     "zip",
+    "mysqlnd",
     "mysqli",
     "pdo_mysql"
 ]
