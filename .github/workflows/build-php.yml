@@ -25,20 +25,22 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Create php-bin directory
+      - name: Create php-bin directory and set working directory
         run: |
             mkdir ../php-bin
             mv * ../php-bin/
-            cd ../php-bin
+            echo "GITHUB_WORKSPACE=$GITHUB_WORKSPACE/../php-bin" >> $GITHUB_ENV
+        
+      - name: Set working directory
+        run: cd $GITHUB_WORKSPACE
 
       - name: Download SPC
         shell: bash
         run: |
-          cd ..
+          cd $GITHUB_WORKSPACE/..
           git clone https://github.com/crazywhalecc/static-php-cli.git
           cd static-php-cli
           git checkout main
-          cd ../php-bin
 
       - shell: bash
         run: |
@@ -94,7 +96,7 @@ jobs:
         id: read-extensions
         shell: bash
         run: |
-          EXTENSIONS=$(php -r "echo trim(file_get_contents('php-extensions.txt'));")
+          EXTENSIONS=$(php -r "echo trim(file_get_contents('$GITHUB_WORKSPACE/php-extensions.txt'));")
           EXT_HASH=$(php -r "echo md5(getenv('EXTENSIONS'));")
           echo "PHP_EXTENSIONS=$EXTENSIONS" >> $GITHUB_ENV
           echo "PHP_EXT_HASH=$EXT_HASH" >> $GITHUB_ENV
@@ -132,20 +134,23 @@ jobs:
       - name: Zip PHP binary, copy metadata
         shell: bash
         run: |
-          if [[ "${{ matrix.os }}" == "windows-latest" ]]; then
-            powershell Compress-Archive -Path "../static-php-cli/buildroot/bin/php.exe" -DestinationPath "bin/${{ env.SPC_BUILD_OS }}/${{ env.SPC_BUILD_ARCH }}/php-${{ env.PHP_VERSION }}.zip" -Force
-          else
-            rm bin/${{ env.SPC_BUILD_OS }}/${{ env.SPC_BUILD_ARCH }}/php-${{ env.PHP_VERSION }}.zip
-            mkdir -p tmp-bin
-            cp ../static-php-cli/buildroot/bin/php tmp-bin/
-            cd tmp-bin
-            zip ../bin/${{ env.SPC_BUILD_OS }}/${{ env.SPC_BUILD_ARCH }}/php-${{ env.PHP_VERSION }}.zip php
-            cd ..
-            rm -rf tmp-bin
-          fi
-          cp ../static-php-cli/buildroot/license/* license-files/
-          cp ../static-php-cli/buildroot/build-extensions.json build-meta/build-extensions-${{ env.SPC_BUILD_OS }}.json
-          cp ../static-php-cli/buildroot/build-libraries.json build-meta/build-libraries-${{ env.SPC_BUILD_OS }}.json
+            cd $GITHUB_WORKSPACE
+            if [[ "${{ matrix.os }}" == "windows-latest" ]]; then
+              powershell Compress-Archive -Path "../static-php-cli/buildroot/bin/php.exe" -DestinationPath "bin/${{ env.SPC_BUILD_OS }}/${{ env.SPC_BUILD_ARCH }}/php-${{ env.PHP_VERSION }}.zip" -Force
+            else
+              mkdir -p bin/${{ env.SPC_BUILD_OS }}/${{ env.SPC_BUILD_ARCH }}
+              rm -f bin/${{ env.SPC_BUILD_OS }}/${{ env.SPC_BUILD_ARCH }}/php-${{ env.PHP_VERSION }}.zip
+              mkdir -p tmp-bin
+              cp ../static-php-cli/buildroot/bin/php tmp-bin/
+              cd tmp-bin
+              zip ../bin/${{ env.SPC_BUILD_OS }}/${{ env.SPC_BUILD_ARCH }}/php-${{ env.PHP_VERSION }}.zip php
+              cd ..
+              rm -rf tmp-bin
+            fi
+            mkdir -p license-files build-meta
+            cp ../static-php-cli/buildroot/license/* license-files/
+            cp ../static-php-cli/buildroot/build-extensions.json build-meta/build-extensions-${{ env.SPC_BUILD_OS }}.json
+            cp ../static-php-cli/buildroot/build-libraries.json build-meta/build-libraries-${{ env.SPC_BUILD_OS }}.json
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v7
