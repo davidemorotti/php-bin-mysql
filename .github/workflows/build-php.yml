@@ -25,6 +25,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Setup system PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.2
+          tools: pecl, composer
+          extensions: curl, openssl, mbstring, sodium, tokenizer
+          ini-values: memory_limit=-1
+
       - name: Download SPC
         shell: bash
         run: |
@@ -32,7 +40,6 @@ jobs:
           git clone https://github.com/crazywhalecc/static-php-cli.git
           cd static-php-cli
           git checkout main
-          mkdir -p php-bin
           cd ../php-bin
 
       - shell: bash
@@ -64,14 +71,6 @@ jobs:
       - shell: bash
         if: matrix.os == 'ubuntu-latest'
         run: echo "SPC_BUILD_OS=linux" >> $GITHUB_ENV
-
-      - name: Setup system PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: 8.2
-          tools: pecl, composer
-          extensions: curl, openssl, mbstring, sodium, tokenizer
-          ini-values: memory_limit=-1
 
       # Cache composer dependencies
       - id: cache-spc-composer-deps
