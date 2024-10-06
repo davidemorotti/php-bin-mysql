@@ -6,6 +6,5 @@
     "curl",
     "libpng",
     "sqlite",
-    "libzip",
-    "mysqli"
+    "libzip"
 ]
