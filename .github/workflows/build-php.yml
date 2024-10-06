@@ -32,15 +32,6 @@ jobs:
         run: |
           mkdir ../php-bin
 
-      - name: Read PHP extensions from file
-        id: read-extensions
-        shell: bash
-        run: |
-            EXTENSIONS=$(php -r "echo trim(file_get_contents('php-extensions.txt'));")
-            EXT_HASH=$(php -r "echo md5(getenv('EXTENSIONS'));")
-            echo "PHP_EXTENSIONS=$EXTENSIONS" >> $GITHUB_ENV
-            echo "PHP_EXT_HASH=$EXT_HASH" >> $GITHUB_ENV
-
       - name: Download SPC
         shell: bash
         run: |
@@ -107,6 +98,19 @@ jobs:
           cd ../static-php-cli
           ./bin/spc doctor
           cd ../php-bin
+
+      - name: Read PHP extensions from file
+        id: read-extensions
+        shell: bash
+        run: |
+          ls -la
+          cd ..
+          ls -la
+          EXTENSIONS=$(php -r "echo trim(file_get_contents('php-extensions.txt'));")
+          EXT_HASH=$(php -r "echo md5(getenv('EXTENSIONS'));")
+          echo "PHP_EXTENSIONS=$EXTENSIONS" >> $GITHUB_ENV
+          echo "PHP_EXT_HASH=$EXT_HASH" >> $GITHUB_ENV
+          cd php-bin
 
       # Cache downloaded source
       - id: cache-spc-downloads
