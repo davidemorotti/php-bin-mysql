@@ -25,13 +25,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup system PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: 8.2
-          tools: pecl, composer
-          extensions: curl, openssl, mbstring, sodium, tokenizer
-          ini-values: memory_limit=-1
+      - name: Create php-bin directory
+        run: |
+            mkdir ../php-bin
+            mv * ../php-bin/
+            cd ../php-bin
 
       - name: Download SPC
         shell: bash
