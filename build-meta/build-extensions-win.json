@@ -21,5 +21,7 @@
     "sockets",
     "tokenizer",
     "bz2",
-    "zip"
+    "zip",
+    "mysqli",
+    "pdo_mysql"
 ]

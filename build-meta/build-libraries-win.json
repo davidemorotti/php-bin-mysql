@@ -10,5 +10,6 @@
     "bzip2",
     "sqlite",
     "xz",
-    "libzip"
+    "libzip",
+    "mysqli"
 ]

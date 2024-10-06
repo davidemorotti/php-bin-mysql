@@ -19,5 +19,7 @@
     "sockets",
     "tokenizer",
     "xml",
-    "zip"
+    "zip",
+    "mysqli",
+    "pdo_mysql"
 ]
