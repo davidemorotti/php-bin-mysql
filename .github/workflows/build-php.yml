@@ -25,19 +25,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Create php-bin directory and set working directory
+      - name: Create php-bin directory
         run: |
             mkdir ../php-bin
-            mv * ../php-bin/
-            echo "GITHUB_WORKSPACE=$GITHUB_WORKSPACE/../php-bin" >> $GITHUB_ENV
-        
-      - name: Set working directory
-        run: cd $GITHUB_WORKSPACE
 
       - name: Download SPC
         shell: bash
         run: |
-          cd $GITHUB_WORKSPACE/..
+          cd ../php-bin
           git clone https://github.com/crazywhalecc/static-php-cli.git
           cd static-php-cli
           git checkout main
@@ -96,18 +91,11 @@ jobs:
         id: read-extensions
         shell: bash
         run: |
-            CURRENT_DIR=$(pwd)
-            echo "Current directory: $CURRENT_DIR"
-            ls -la  # This will list all files in the current directory
-            if [ -f "php-extensions.txt" ]; then
-              EXTENSIONS=$(php -r "echo trim(file_get_contents('php-extensions.txt'));")
-              EXT_HASH=$(php -r "echo md5('$EXTENSIONS');")
-              echo "PHP_EXTENSIONS=$EXTENSIONS" >> $GITHUB_ENV
-              echo "PHP_EXT_HASH=$EXT_HASH" >> $GITHUB_ENV
-            else
-              echo "Error: php-extensions.txt not found in the current directory"
-              exit 1
-            fi
+            ls -la
+            EXTENSIONS=$(php -r "echo trim(file_get_contents('php-extensions.txt'));")
+            EXT_HASH=$(php -r "echo md5(getenv('EXTENSIONS'));")
+            echo "PHP_EXTENSIONS=$EXTENSIONS" >> $GITHUB_ENV
+            echo "PHP_EXT_HASH=$EXT_HASH" >> $GITHUB_ENV
 
       # Cache downloaded source
       - id: cache-spc-downloads
@@ -142,7 +130,6 @@ jobs:
       - name: Zip PHP binary, copy metadata
         shell: bash
         run: |
-            cd $GITHUB_WORKSPACE
             if [[ "${{ matrix.os }}" == "windows-latest" ]]; then
               powershell Compress-Archive -Path "../static-php-cli/buildroot/bin/php.exe" -DestinationPath "bin/${{ env.SPC_BUILD_OS }}/${{ env.SPC_BUILD_ARCH }}/php-${{ env.PHP_VERSION }}.zip" -Force
             else
